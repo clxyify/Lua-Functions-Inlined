@@ -1,3 +1,12 @@
+//Hey! Don't go anywhere! This file actually requires global updating
+
+#define ttisnumber(o)	(ttype(o) == LUA_TNUMBER)//This updates often, it's called R_LUA_TNUMBER
+#define check_exp(c,e)		(e)//No need for update
+#define ttype(o)	((o)->tt)//No need for update
+#define tonumber(o,n)	(ttype(o) == 3 || \//This updates often, it's called R_LUA_TNUMBER
+                         (((o) = luaV_tonumber(o,n)) != 0))
+				 
+//No need to update anything here, it's just headers from Lua source				 
 struct r_GCheader
 {
 	BYTE tt;
