@@ -19,9 +19,23 @@ extern int rlua_toboolean (DWORD rL, int idx) {//Converts the Lua value at the g
 
 extern int rlua_type (DWORD rL, int idx) {//Returns the type of the value in the given valid index
   StkId o = r_lua_index2adr(rL, idx);//External type, not a lua API function
-  return (o == luaO_nilobject) ? -1 : ttype(o);//Requires some lua files
+  return (o == luaO_nilobject) ? -1 : ttype(o);//-1 is R_LUA_TNONE which requires updating
 }
 
-extern const char *lua_typename (DWORD rL, int t) {
-  return (t == LUA_TNONE) ? "no value" : luaT_typenames[t];
+extern const char *rlua_typename (DWORD rL, int t) {
+  UNUSED(rL);//You can comment this out if erroring ;)
+  return (t == -1) ? "no value douchebag" : luaT_typenames[t];//-1 is R_LUA_TNONE which requires updating
+}
+
+extern const void *rlua_topointer (DWORD rL, int idx) {//Points lua at Lua where it points Lua at Lua where it Points Lua at Lua where it Points Lua at Lua
+  StkId o = r_lua_index2adr(rL, idx);
+  switch (ttype(o)) {
+    case LUA_TTABLE: return hvalue(o);
+    case LUA_TFUNCTION: return clvalue(o);
+    case LUA_TTHREAD: return thvalue(o);
+    case LUA_TUSERDATA:
+    case LUA_TLIGHTUSERDATA:
+      return r_lua_touserdata(rL, idx);//This function is required as it is a external type
+    default: return 0;
+  }
 }
