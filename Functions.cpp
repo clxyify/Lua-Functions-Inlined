@@ -41,3 +41,8 @@ extern const void *rlua_topointer (DWORD rL, int idx) {//Points lua at Lua where
 }
 
 //love u roblox for luau src <3
+int r_lua_isstring(DWORD rL, int idx)
+{
+    int ty = rlua_type(rL, idx);//equal int value to the r_lua_type function
+    return (ty == LUA_TSTRING || t == LUA_TNUMBER);//these global headers are offsets so plz update them
+}
