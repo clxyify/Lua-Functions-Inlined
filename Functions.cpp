@@ -39,3 +39,5 @@ extern const void *rlua_topointer (DWORD rL, int idx) {//Points lua at Lua where
     default: return 0;
   }
 }
+
+//love u roblox for luau src <3
