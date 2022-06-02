@@ -40,7 +40,7 @@ extern const void *rlua_topointer (DWORD rL, int idx) {//Points lua at Lua where
   }
 }
 
-//love u roblox for luau src <3
+//love u roblox for luau src <3 bit inline?
 int r_lua_isstring(DWORD rL, int idx)
 {
     int ty = rlua_type(rL, idx);//equal int value to the r_lua_type function
@@ -69,3 +69,12 @@ void rlua_getfenv(DWORD rL, int idx)//uses about 5 different offsets
     }
     return;
 }
+
+void rlua_pushnil(DWORD rL)//fixing required
+{
+  int topOFFSET = 69;//can it be called as StkId?
+    setnilvalue(rL->*topOFFSET);//fixing required but prob fixing it in next 10 years
+    //return
+    return;
+}
+
