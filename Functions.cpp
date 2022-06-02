@@ -46,3 +46,26 @@ int r_lua_isstring(DWORD rL, int idx)
     int ty = rlua_type(rL, idx);//equal int value to the r_lua_type function
     return (ty == LUA_TSTRING || t == LUA_TNUMBER);//these global headers are offsets so plz update them
 }
+
+#define ttyper(o) ((o)->tt)//point
+void rlua_getfenv(DWORD rL, int idx)//uses about 5 different offsets
+{
+    struct Table* envvvvvv;//structure
+    int top = 0;//top offset
+    Table* gttt;           /* table of globals */
+    StkId o;//kinda sketch
+    o = rlua_index2addr(rL, idx);//use internally
+    switch (ttyper(o))//switch between cases or idx
+    {
+    case LUA_TFUNCTION://update
+        sethvalue(rL, rL + top, clvalue(o) + envvvvvv);
+        break;
+    case LUA_TTHREAD://update
+        sethvalue(rL, rL + top, thvalue(o) + gttt);//global table
+        break;//break
+    default:
+        setnilvalue(rL + top);//can be found in Headers.hpp
+        break;
+    }
+    return;
+}
