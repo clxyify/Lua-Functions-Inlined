@@ -1,3 +1,8 @@
+//So this file contains some inlined and working functions! woo-hoo!
+//I made most of these, and some found so ill just cred them If i took them!
+//below you are going to see 5 functions, which are not inlined.....
+//they are actually from Lua 5.1 c source, so they are not inlined but worked before the inline update
+//if you want inline functions go to the 6th function and enjoy, fuck u roblox u cant outcome the masters ;)
 extern double rlua_tonumber (DWORD rL, int idx)//Converts the Lua value at the given index to the C type lua_Number
 {
   TValue n;//Included in "Headers.hpp"
@@ -8,7 +13,7 @@ extern double rlua_tonumber (DWORD rL, int idx)//Converts the Lua value at the g
   }
   else
   {
-      return 0;
+      return NULL;
   }
 }
 
@@ -40,12 +45,14 @@ extern const void *rlua_topointer (DWORD rL, int idx) {//Points lua at Lua where
   }
 }
 
-//love u roblox for luau src <3 bit inline?
+//love u roblox for luau src <3 inlined btw
 int r_lua_isstring(DWORD rL, int idx)
 {
     int ty = rlua_type(rL, idx);//equal int value to the r_lua_type function
     return (ty == LUA_TSTRING || t == LUA_TNUMBER);//these global headers are offsets so plz update them
 }
+
+//getfunctions->gay
 
 #define ttyper(o) ((o)->tt)//point
 void rlua_getfenv(DWORD rL, int idx)//uses about 5 different offsets
@@ -69,12 +76,3 @@ void rlua_getfenv(DWORD rL, int idx)//uses about 5 different offsets
     }
     return;
 }
-
-void rlua_pushnil(DWORD rL)//fixing required
-{
-  int topOFFSET = 69;//can it be called as StkId?
-    setnilvalue(rL->*topOFFSET);//fixing required but prob fixing it in next 10 years
-    //return
-    return;
-}
-
