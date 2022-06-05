@@ -220,4 +220,28 @@ const char* r_luaL_checklstring(DWORD rL, int narg, size_t* len)//checks len for
     return s;
 }
 
-//more to come soon :)
+const char* r_luaL_optlstring(DWORD rL, int narg, const char* def, size_t* len)//optlstring function 3 arg
+{
+    if (r_lua_isnoneornil(rL, narg))
+    {
+        if (len)
+            *len = (def ? strlen(def) : NULL);
+        return def;
+    }
+    else
+        return r_luaL_checklstring(rL, narg, len);
+}
+
+double luaL_checknumber(DWORD rL, int narg)//why not make it a double?
+{
+    int isnum;
+    double d = r_lua_tonumberx(rL, narg, &isnum);
+    if (!isnum)
+        tag_error(L, narg, LUA_TNUMBER);//global offset
+    return d;
+}
+
+double luaL_optnumber(DWORD rL, int narg, double def)//opt number with L check number
+{
+    return r_luaL_opt(rL, r_luaL_checknumber, narg, def);
+}
