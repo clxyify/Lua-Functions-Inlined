@@ -135,3 +135,89 @@ const char* r_luaL_tolstring(DWORD rL, int idx, size_t* len)
     }
     return r_lua_tolstring(rL, -1, len);
 }
+
+void r_luaL_checkstack(DWORD rL, int space, const char* mes)//aux check stack
+{
+    mes = mes;//message
+    if (!r_lua_checkstack(rL, space))
+        r_luaL_error(rL, "stack overflow (%s)", mes);//error
+    else
+        //no stack overflow :)
+}
+
+int r_luaL_checkoption(DWORD rL, int narg, const char* def, const char* const lst[])//4 args
+{
+    const char* name = (def) ? r_luaL_optstring(rL, narg, def) : r_luaL_checkstring(rL, narg);
+    int i;
+    for (i = 0; lst[i]; i++)
+        if (strcmp(lst[i], name) == 0)
+            return i;
+    const char* msg = r_lua_pushfstring(rL, "invalid option '%s'", name);//not a option and push to argument error
+    r_luaL_argerrorL(rL, narg, msg);//arg error 'invalid option' internal argument
+}
+
+int r_luaL_newmetatable(DWORD rL, const char* tname)//creates new metatable with 2nd argument tname
+{
+    int value = -1;
+    r_lua_getfield(rL, LUA_REGISTRYINDEX, tname); /* get registry.name */
+    if (!r_lua_isnil(rL, value))                     /* name already in use? */
+        return NULL;                              /* leave previous value on top, but return 0 */
+    r_lua_pop(rL, 1);//note: this is settop used as define to make life 100% easier
+    r_lua_newtable(rL); /* create metatable */
+    r_lua_pushvalue(rL, value);
+    r_lua_setfield(rL, LUA_REGISTRYINDEX, tname); /* registry.name = metatable */
+    return 1;
+}
+
+void* r_luaL_checkudata(DWORD rL, int ud, const char* tname)//check user data aux
+{
+    void* p = r_lua_touserdata(rL, ud);//p* now to userdata
+    if (p != 0)//equal to 0
+    { /* value is a userdata? */
+        if (r_lua_getmetatable(rL, ud))
+        {                                              /* does it have a metatable? */
+            r_lua_getfield(rL, LUA_REGISTRYINDEX, tname); /* get correct metatable */
+            if (r_lua_rawequal(rL, -1, -2))
+            {                  /* does it have the correct mt? */
+                r_lua_pop(L, 2); /* remove both metatables settop */
+                return p;
+            }
+        }
+    }
+    std::cout << "error while function was starting";//error comes :SKULL:
+    //i suggest you make ur exploit console based temporary
+}
+
+void r_luaL_checkstack(DWORD rL, int space, const char* mes)//checks stack 3 args
+{
+    if (!r_lua_checkstack(rL, space))//! = not
+        r_luaL_error(rL, "stack overflow (%s)", mes);
+        std::cout << "encountered overflow " << mes;
+    else//no overflow but should loop this func to check overflowed stack
+        std::cout << "no overflow (YET)";
+}
+
+void r_luaL_checktype(DWORD rL, int narg, int t)//checks type with 3 arg a integer
+{
+    if (r_lua_type(rL, narg) != t)
+        std::cout << narg;//display in console
+    else
+        //not
+}
+
+void r_luaL_checkany(DWORD rL, int narg)//checks narg
+{
+    if (r_lua_type(rL, narg) == R_LUA_TNONE)//global offset
+        r_luaL_error(L, "missing argument #%d", narg);
+    std::cout << "did u miss an argument?";
+}
+
+const char* r_luaL_checklstring(DWORD rL, int narg, size_t* len)//checks len for string
+{
+    const char* s = r_lua_tolstring(rL, narg, len);
+    if (!s)
+        tag_error(L, narg, LUA_TSTRING);//errror
+    return s;
+}
+
+//more to come soon :)
