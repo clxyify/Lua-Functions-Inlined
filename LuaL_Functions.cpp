@@ -263,3 +263,69 @@ DWORD* luaL_newstate(void)//fake ofc and not even inlined lmao
 {
     return lua_newstate(l_alloc, NULL);
 }
+
+int r_luaL_callmeta(DWORD rL, int obj, const char* event)//meta caller
+{
+    obj = abs_index(rL, obj); //alternative way down below uncomment it
+    //(obj) > NULL || (i) <= LUA_REGISTRYINDEX ? (i) : r_lua_gettop(rL) + (obj) + 1);
+    if (!r_luaL_getmetafield(rL, obj, event)) /* no metafield? */
+        return 0;
+    r_lua_pushvalue(rL, obj);//push int 'obj' aka abs_index
+    r_lua_call(rL, 1, 1);
+    //r_lua_pcall(rL, 1, 1, 0);
+    return 1;
+}
+
+int r_luaL_checkoption(DWORD rL, int narg, const char* def, const char* const lst[])//checks option or returns 'invalid'
+{
+    const char* name = (def) ? r_luaL_optstring(rL, narg, def) : r_luaL_checkstring(rL, narg);
+    int i;
+    for (i = 0; lst[i]; i++)
+        if (strcmp(lst[i], name) == 0)//checks if i is NULL
+            return i;
+    const char* msg = r_lua_pushfstring(rL, "invalid option '%s'", name);//return error
+    r_luaL_argerrorL(rL, narg, msg);
+}
+
+int luaL_checkboolean(DWORD rL, bool narg)//use bool instead of int
+{
+    #define RLUA_TBOOLEAN 15//tboolean offset (global)
+    if (!r_lua_isboolean(rL, narg))//hot
+        luaL_typeerrorL(rL, narg, lua_typename(rL, RLUA_TBOOLEAN));
+    return r_lua_toboolean(rL, narg);
+}
+
+int luaL_optboolean(DWORD rL, int narg, int def)
+{
+    return r_luaL_opt(rL, r_luaL_checkboolean, narg, def);
+}
+
+int r_luaL_checkinteger(DWORD rL, int narg)//check integer
+{
+    int isnum;
+    int d = r_lua_tointegerx(rL, narg, &isnum);
+    if (!isnum)//not number
+        r_luaL_error(rL, "not a valid number");//custom error
+    return d;
+}
+
+int r_luaL_optinteger(DWORD rL, int narg, int def)//opts integer
+{
+    return r_luaL_opt(rL, r_luaL_checkinteger, narg, def);
+}
+
+unsigned luaL_checkunsigned(DWORD rL, int narg)
+{
+    int isnum;
+    unsigned d = r_lua_tounsignedx(rL, narg, &isnum);
+    if (!isnum)
+        luaL_typeerrorL(rL, narg, lua_typename(rL, RLUA_TONUMBER));//use that
+    return d;
+}
+
+unsigned luaL_optunsigned(DWORD rL, int narg, unsigned def)
+{
+    return r_luaL_opt(rL, r_luaL_checkunsigned, narg, def);
+}
+
+//more to come soon :)
