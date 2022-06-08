@@ -245,3 +245,21 @@ double luaL_optnumber(DWORD rL, int narg, double def)//opt number with L check n
 {
     return r_luaL_opt(rL, r_luaL_checknumber, narg, def);
 }
+
+static void* l_alloc(void* ud, void* ptr, size_t osize, size_t nsize)//need this for lua_state btw
+{
+    (void)ud;
+    (void)osize;
+    if (nsize == 0)
+    {
+        free(ptr);
+        return NULL;
+    }
+    else
+        return realloc(ptr, nsize);
+}
+
+DWORD* luaL_newstate(void)//fake ofc and not even inlined lmao
+{
+    return lua_newstate(l_alloc, NULL);
+}
