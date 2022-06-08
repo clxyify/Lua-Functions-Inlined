@@ -127,7 +127,7 @@ const char* r_luaL_tolstring(DWORD rL, int idx, size_t* len)
     default:
     {
         const void* ptr = r_lua_topointer(rL, idx);
-        unsigned long long enc = r_lua_encodepointer(rL, uintptr_t(ptr));
+        unsigned long long enc = r_lua_encodepointer(rL, uintptr_t(ptr)); 
         r_lua_pushfstring(rL, "%s: 0x%016llx", r_luaL_typename(rL, idx), enc);
         //use pushlstring or any other function related to push-string
         break;
