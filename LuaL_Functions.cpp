@@ -323,9 +323,108 @@ unsigned luaL_checkunsigned(DWORD rL, int narg)
     return d;
 }
 
-unsigned luaL_optunsigned(DWORD rL, int narg, unsigned def)
+unsigned luaL_optunsigned(DWORD rL, int narg, unsigned def)//optsing
 {
     return r_luaL_opt(rL, r_luaL_checkunsigned, narg, def);
 }
 
-//more to come soon :)
+const float* rluaL_checkvector(DWORD rL, int narg)//checks vector (int)
+{
+    const float* v = r_lua_tovector(rL, narg);
+    if (!v)//not valid vector
+        tag_error(L, narg, LUA_TVECTOR);//error
+    return v;
+}
+
+const float* rluaL_optvector(DWORD rL, int narg, const float* def)//optsvector
+{
+    return r_luaL_opt(rL, r_luaL_checkvector, narg, def);
+}
+#define lfakeDefine extern
+lfakeDefine int r_luaL_getmetafield(DWORD rL, int obj, const char* event)//gets meta field modded
+{
+    if (!r_lua_getmetatable(rL, obj)) /* no metatable? */
+        r_luaL_error(rL, "no metatable found");//no metatable exists
+        return NULL;
+    r_lua_pushstring(rL, event);
+    r_lua_rawget(rL, -2);
+    if (r_lua_isnil(rL, -1))
+    {
+        r_lua_pop(rL, 2); /* remove metatable and metafield */
+        return 0;
+    }
+    else
+    {
+        r_lua_remove(rL, -2); /* remove only metatable */
+        r_lua_print(1, "removed metatable");//print function or just use luac print
+        return 1;
+    }
+}
+
+#define abs_index(L, i) ((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : lua_gettop(L) + (i) + 1)
+lfakedefine int r_luaL_callmeta(DWORD rL, int obj, const char* event)//calls meta same arg as getmetafield
+{
+    obj = (obj) > 0 || (obj) <= LUA_REGISTRYINDEX ? (i) : r_lua_gettop(rL) + (obj) + 1);
+    if (!r_luaL_getmetafield(rL, obj, event)) /* no metafield? */
+        r_luaL_error(rL, "no metafield");//no metafield
+        return 0;
+    r_lua_pushvalue(rL, obj);//otherwise
+    r_lua_call(rL, 1, 1);
+    return 1;
+}
+
+//registeration system but it needs special format btw so remember that
+typedef int (*lua_CFunction) (DWORD rL);
+typedef struct luaL_Reg {
+  const char *name;
+  lua_CFunction func;
+} luaL_Reg;
+static int libsize (const luaL_Reg *l) {
+  int size = 0;
+  for (; l->name; l++) size++;
+  return size;
+}
+void r_luaL_register(DWORD rL, const char* libname, const luaL_Reg* l)
+{
+    if (libname)//if exists
+    {
+        int size = libsize(l);
+        /* check whether lib already exists */
+        r_luaL_findtable(rL, LUA_REGISTRYINDEX, "_LOADED", 1);//does it already exist
+        r_lua_getfield(rL, -1, libname); /* get _LOADED[libname] */
+        if (!r_lua_istable(rL, -1))
+        {                  /* not found? */
+            r_lua_pop(rL, 1); /* remove previous result */
+            /* try global variable (and create one if it does not exist) */
+            if (r_luaL_findtable(rL, LUA_GLOBALSINDEX, libname, size) != NULL)
+                r_luaL_error(rL, "name conflict for module '%s'", libname);
+            r_lua_pushvalue(rL, -1);
+            r_lua_setfield(rL, -3, libname); /* _LOADED[libname] = new table */
+        }
+        r_lua_remove(rL, -2); /* remove _LOADED table */
+    }
+    for (; l->name; l++)
+    {
+        r_lua_pushcfunction(rL, l->func, l->name);//TODO: change arrows opperandor
+        r_lua_setfield(rL, -2, l->name);
+    }
+}
+//tut on how to register funcs with my modded thingy:
+static int function(DWORD rL)//paste ur skid funcs here
+{
+    //custom function
+    return 1;
+}
+
+static const luaL_Reg mycustomlib[] = {
+    {"func", function},//"func" in quotes is what the lua env will read and the 'function' is the funcs name in this file
+    {NULL, NULL},
+};
+#define funcs "funcs"//technically it will use funcs.func() to run the script
+int start_register(DWORD rL)
+{
+    r_luaL_register(rL, funcs, mycustomlib);//registers functions in the reg list
+    return 1;
+}
+
+start_register(rL);//ez registering
