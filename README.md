@@ -27,3 +27,5 @@ Commented each code block for more information on what to change, etc. It also i
 # Does it work?
 
 Some functions may work as your execution method is different.
+
+This is 100% working with Roblox's Luau Compiler: https://github.com/Roblox/luau
