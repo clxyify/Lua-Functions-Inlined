@@ -24,10 +24,6 @@ Fully or partially inlined functions as I didnt really want to work on it, maybe
 
 Commented each code block for more information on what to change, etc. It also includes defines for certain functions.
 
-# What-you-need?
+# Does it work?
 
-At least some IQ to use the functions.
-
-Globals or offsets that are updated.
-
-Some manners to credit the developers?
+Some functions may work as your execution method is different.
