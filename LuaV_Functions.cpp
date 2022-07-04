@@ -53,3 +53,11 @@ void r_luaV_getimport(DWORD rL, Table* env, TValue* k, uint32_t id, bool propaga
         r_lua_pushnil(rL);//lol smart way eh?
     }
 }
+
+const float* r_luaV_tovector(const TValue* obj)
+{
+    if (r_ttisvector(obj))
+        return obj->value.v;
+
+    return nullptr;
+}
